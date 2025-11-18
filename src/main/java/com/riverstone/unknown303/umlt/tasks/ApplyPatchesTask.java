@@ -1,5 +1,6 @@
 package com.riverstone.unknown303.umlt.tasks;
 
+import com.riverstone.unknown303.umlt.UMLTTask;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
@@ -8,7 +9,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.util.Arrays;
 
-public abstract class ApplyPatchesTask extends DefaultTask {
+public abstract class ApplyPatchesTask extends UMLTTask {
     private final ExecOperations execOperations;
 
     @Inject

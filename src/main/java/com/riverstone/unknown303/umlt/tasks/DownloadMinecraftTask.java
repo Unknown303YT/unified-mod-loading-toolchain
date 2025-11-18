@@ -2,6 +2,7 @@ package com.riverstone.unknown303.umlt.tasks;
 
 import com.riverstone.unknown303.umlt.HTTPUtils;
 import com.riverstone.unknown303.umlt.ToolchainPlugin;
+import com.riverstone.unknown303.umlt.UMLTTask;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
@@ -19,7 +20,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 
-public abstract class DownloadMinecraftTask extends DefaultTask {
+public abstract class DownloadMinecraftTask extends UMLTTask {
     private final ExecOperations execOperations;
 
     @Inject
@@ -44,8 +45,7 @@ public abstract class DownloadMinecraftTask extends DefaultTask {
 
         getLogger().debug("Creating folders...");
 
-        File versionCache = new File(ToolchainPlugin.getPlugin(getProject()).getCacheDir(),
-                getMinecraftVersion().get());
+        File versionCache = new File(getCacheDir(), getMinecraftVersion().get());
         versionCache.mkdirs();
 
         File clientJar = new File(versionCache, "client.jar");
@@ -55,11 +55,13 @@ public abstract class DownloadMinecraftTask extends DefaultTask {
         getServerJar().set(serverJar);
 
         getLogger().info("Fetching Minecraft version data...");
-        JsonObject manifest = fetchVersionManifest();
-        JsonObject versionInfo = findVersionInfo(manifest, mcVersion);
+        JsonObject manifest = fetchVersionManifest(this);
+        JsonObject versionInfo = findVersionInfo(this, manifest, mcVersion);
 
-        String clientUrl = versionInfo.getAsJsonObject("downloads").getAsJsonObject("client").get("url").getAsString();
-        String serverUrl = versionInfo.getAsJsonObject("downloads").getAsJsonObject("server").get("url").getAsString();
+        String clientUrl = versionInfo.getAsJsonObject("downloads")
+                .getAsJsonObject("client").get("url").getAsString();
+        String serverUrl = versionInfo.getAsJsonObject("downloads")
+                .getAsJsonObject("server").get("url").getAsString();
 
         getLogger().lifecycle("Downloading client jar...");
         HTTPUtils.downloadFile(clientUrl, clientJar);
@@ -68,9 +70,8 @@ public abstract class DownloadMinecraftTask extends DefaultTask {
         HTTPUtils.downloadFile(serverUrl, serverJar);
     }
 
-    private JsonObject fetchVersionManifest() throws IOException {
-        File manifestCache = new File(ToolchainPlugin.getPlugin(getProject()).getCacheDir(),
-                "version_manifest.json");
+    public static JsonObject fetchVersionManifest(UMLTTask task) throws IOException {
+        File manifestCache = new File(task.getCacheDir(), "version_manifest.json");
         HTTPUtils.downloadFile("https://launchermeta.mojang.com/mc/game/version_manifest.json", manifestCache);
         Reader reader = new FileReader(manifestCache);
         JsonObject obj = JsonParser.parseReader(reader).getAsJsonObject();
@@ -78,7 +79,7 @@ public abstract class DownloadMinecraftTask extends DefaultTask {
         return obj;
     }
 
-    private JsonObject findVersionInfo(JsonObject manifest, String mcVersion) throws IOException {
+    public static JsonObject findVersionInfo(UMLTTask task, JsonObject manifest, String mcVersion) throws IOException {
         if (mcVersion.equalsIgnoreCase("latest")
                 || mcVersion.equalsIgnoreCase("latest-release"))
             mcVersion = manifest.getAsJsonObject("latest")
@@ -91,7 +92,7 @@ public abstract class DownloadMinecraftTask extends DefaultTask {
             JsonObject versionObject = jsonElement.getAsJsonObject();
             if (versionObject.get("id").getAsString().equalsIgnoreCase(mcVersion)) {
                 String versionUrl = versionObject.get("url").getAsString();
-                File versionCache = new File(ToolchainPlugin.getPlugin(getProject()).getCacheDir(),
+                File versionCache = new File(task.getCacheDir(),
                         mcVersion + ".json");
                 HTTPUtils.downloadFile(versionUrl, versionCache);
 

@@ -1,4 +1,11 @@
 package com.riverstone.unknown303.umlt;
 
-public class UMLTTask {
+import org.gradle.api.DefaultTask;
+
+import java.io.File;
+
+public abstract class UMLTTask extends DefaultTask {
+    public File getCacheDir() {
+        return ToolchainPlugin.getPlugin(getProject()).getCacheDir();
+    }
 }

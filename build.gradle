@@ -11,6 +11,10 @@ repositories {
     mavenCentral()
 }
 
+dependencies {
+    implementation "org.vineflower:vineflower:${vineflower_version}"
+}
+
 gradlePlugin {
     plugins {
         create("toolchainPlugin") {
