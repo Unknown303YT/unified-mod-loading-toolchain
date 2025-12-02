@@ -1,24 +1,26 @@
-package com.riverstone.unknown303.umlt;
+package com.riverstone.unknown303.umlt.util;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class HTTPUtils {
+    private HTTPUtils() {}
+
     /**
      * Downloads a file from the String provided to the File.
      * @param urlString The URL to download from.
      * @param outputFile The location to download to.
      * @throws IOException In case of an error in the transfer or in security.
-     * @see HTTPUtils#downloadFile(String, File, boolean) 
+     * @see HTTPUtils#downloadFile(String, File, boolean)
      */
     public static void downloadFile(String urlString, File outputFile) throws IOException {
         downloadFile(urlString, outputFile, false);
     }
-    
+
     /**
      * Downloads a file from the String provided to the File.
      * @param urlString The URL to download from.
@@ -78,5 +80,13 @@ public class HTTPUtils {
         }
 
         return connection;
+    }
+
+    public static JsonElement downloadJson(String urlString, File outputFile) throws IOException {
+        downloadFile(urlString, outputFile, true);
+        FileReader reader = new FileReader(outputFile);
+        JsonElement json = JsonParser.parseReader(reader);
+        reader.close();
+        return json;
     }
 }

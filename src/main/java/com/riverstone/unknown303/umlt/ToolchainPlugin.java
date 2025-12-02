@@ -2,7 +2,6 @@ package com.riverstone.unknown303.umlt;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
@@ -10,19 +9,18 @@ public class ToolchainPlugin implements Plugin<Project> {
     private File cacheDir;
 
     @Override
-    public void apply(@NotNull Project project) {
-        cacheDir = new File(project.getGradle().getGradleUserHomeDir(),
-                "caches" + File.separator + "umlt");
+    public void apply(Project project) {
         UMLTExtension extension =
-                project.getExtensions().create("umlt", UMLTExtension.class);
+                project.getExtensions().create("umlt", UMLTExtension.class, project);
+        cacheDir = project.getLayout().getBuildDirectory().dir("umlt").get().getAsFile();
+        cacheDir.mkdirs();
     }
 
     public File getCacheDir() {
-        return cacheDir;
+        return this.cacheDir;
     }
 
     public static ToolchainPlugin getPlugin(Project project) {
-        return project.getPlugins().withType(ToolchainPlugin.class)
-                .stream().findFirst().orElse(null);
+        return project.getPlugins().getPlugin(ToolchainPlugin.class);
     }
 }
