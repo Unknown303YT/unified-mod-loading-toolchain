@@ -26,7 +26,6 @@ repositories {
 
 dependencies {
     implementation gradleApi()
-    implementation localGroovy()
 
     implementation "net.fabricmc:tiny-remapper:${tiny_remapper_version}"
     implementation "net.fabricmc:mapping-io:${mapping_io_version}"
