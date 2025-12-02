@@ -27,10 +27,13 @@ repositories {
 dependencies {
     implementation gradleApi()
     implementation localGroovy()
-    implementation "org.vineflower:vineflower:${vineflower_version}"
+
     implementation "net.fabricmc:tiny-remapper:${tiny_remapper_version}"
-    implementation "io.codechicken:DiffPatch:${diffpatch_version}:all"
+    implementation "net.fabricmc:mapping-io:${mapping_io_version}"
+
     implementation "com.google.code.gson:gson:${gson_version}"
+    implementation "org.vineflower:vineflower:${vineflower_version}"
+    implementation "io.codechicken:DiffPatch:${diffpatch_version}:all"
 }
 
 gradlePlugin {

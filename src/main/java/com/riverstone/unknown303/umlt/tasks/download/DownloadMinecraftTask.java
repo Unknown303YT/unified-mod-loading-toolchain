@@ -1,4 +1,4 @@
-package com.riverstone.unknown303.umlt.tasks;
+package com.riverstone.unknown303.umlt.tasks.download;
 
 import com.riverstone.unknown303.umlt.UMLTTask;
 import com.riverstone.unknown303.umlt.util.MojangDownloader;
@@ -23,12 +23,8 @@ public abstract class DownloadMinecraftTask extends UMLTTask {
         String version = getMinecraftVersion().get();
         File outDir = getOutputDir().getAsFile().get();
         MojangDownloader.downloadClientJar(getCacheDir(), version,
-                new File(
-                        new File(getCacheDir(), "mcJars"),
-                        version + "-client.jar"));
+                new File(outDir, version + "-client.jar"));
         MojangDownloader.downloadServerJar(getCacheDir(), version,
-                new File(
-                        new File(getCacheDir(), "mcJars"),
-                        version + "-server.jar"));
+                new File(outDir, version + "-server.jar"));
     }
 }
