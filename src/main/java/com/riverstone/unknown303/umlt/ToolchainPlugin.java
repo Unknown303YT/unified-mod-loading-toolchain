@@ -1,6 +1,9 @@
 package com.riverstone.unknown303.umlt;
 
+import com.riverstone.unknown303.umlt.tasks.mapping.provider.DownloadMojMapsTask;
+import com.riverstone.unknown303.umlt.tasks.mapping.provider.GenerateTemplateMappingFileTask;
 import com.riverstone.unknown303.umlt.tasks.download.DownloadMinecraftTask;
+import com.riverstone.unknown303.umlt.util.Util;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskProvider;
@@ -12,16 +15,31 @@ public class ToolchainPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        cacheDir = project.getLayout().getBuildDirectory().dir("umlt").get().getAsFile();
-        cacheDir.mkdirs();
-
         UMLTExtension extension =
                 project.getExtensions().create("umlt", UMLTExtension.class, project);
+
+        cacheDir = extension.useGlobalCache().get() ?
+                Util.createFolder(project.getGradle().getGradleUserHomeDir(),
+                        "caches" + File.separator + "umlt") :
+                Util.createFolder(project.getLayout().getBuildDirectory().getAsFile().get(), "umlt");
 
         TaskProvider<DownloadMinecraftTask> downloadMC = project.getTasks().register(
                 "downloadMinecraft", DownloadMinecraftTask.class, task -> {
                     task.getMinecraftVersion().set(extension.getMinecraftVersion());
                     task.getOutputDir().set(new File(cacheDir, "vanillaJars"));
+                });
+
+        TaskProvider<GenerateTemplateMappingFileTask> generateTemplateMappings = project.getTasks().register(
+                "generateTemplateMappings", GenerateTemplateMappingFileTask.class,
+                task -> {
+                    task.getMinecraftVersion().set(extension.getMinecraftVersion());
+                    task.getOutputDir().set(new File(cacheDir, "mappings/template"));
+                });
+
+        TaskProvider<DownloadMojMapsTask> downloadMojMaps = project.getTasks().register(
+                "downloadMojMaps", DownloadMojMapsTask.class, task -> {
+                    task.getMinecraftVersion().set(extension.getMinecraftVersion());
+                    task.getOutputDir().set(new File(cacheDir, "mappings/mojmaps"));
                 });
     }
 

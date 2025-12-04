@@ -11,7 +11,8 @@ public final class MojangDownloader {
 
     public static void downloadClientJar(File buildDir, String version, File out) throws IOException {
         String properVersion = getProperVersion(buildDir, version);
-        File versionDataFile = new File(getVersionDataFolder(buildDir), properVersion + ".json");
+        File versionDataFile = new File(Util.createFolder(buildDir, "version_data"),
+                properVersion + ".json");
         JsonObject versionData = HTTPUtils.downloadJson(getVersionDataUrl(buildDir, version),
                 versionDataFile).getAsJsonObject();
         String clientURL = versionData.getAsJsonObject("downloads")
@@ -21,7 +22,8 @@ public final class MojangDownloader {
 
     public static void downloadServerJar(File buildDir, String version, File out) throws IOException {
         String properVersion = getProperVersion(buildDir, version);
-        File versionDataFile = new File(getVersionDataFolder(buildDir), properVersion + ".json");
+        File versionDataFile = new File(Util.createFolder(buildDir, "version_data"),
+                properVersion + ".json");
         JsonObject versionData = HTTPUtils.downloadJson(getVersionDataUrl(buildDir, version),
                 versionDataFile).getAsJsonObject();
         String serverURL = versionData.getAsJsonObject("downloads")
@@ -29,10 +31,35 @@ public final class MojangDownloader {
         HTTPUtils.downloadFile(serverURL, out);
     }
 
-    private static String getVersionDataUrl(File buildDir, String version) throws IOException {
+    public static void downloadClientMappings(File buildDir, String version, File out) throws IOException {
+        String properVersion = getProperVersion(buildDir, version);
+        File versionDataFile = new File(Util.createFolder(buildDir, "version_data"),
+                properVersion + ".json");
+        JsonObject versionData = HTTPUtils.downloadJson(getVersionDataUrl(buildDir, version),
+                versionDataFile).getAsJsonObject();
+        String  clientURL = versionData.getAsJsonObject("downloads")
+                .getAsJsonObject("client_mappings")
+                .getAsJsonPrimitive("url").getAsString();
+        HTTPUtils.downloadFile(clientURL, out);
+    }
+
+    public static void downloadServerMappings(File buildDir, String version, File out) throws IOException {
+        String properVersion = getProperVersion(buildDir, version);
+        File versionDataFile = new File(Util.createFolder(buildDir, "version_data"),
+                properVersion + ".json");
+        JsonObject versionData = HTTPUtils.downloadJson(getVersionDataUrl(buildDir, version),
+                versionDataFile).getAsJsonObject();
+        String  server = versionData.getAsJsonObject("downloads")
+                .getAsJsonObject("server_mappings")
+                .getAsJsonPrimitive("url").getAsString();
+        HTTPUtils.downloadFile(server, out);
+    }
+
+    public static String getVersionDataUrl(File buildDir, String version) throws IOException {
         String properVersion = getProperVersion(buildDir, version);
 
-        File manifestFile = new File(getVersionDataFolder(buildDir), "mc_version_manifest.json");
+        File manifestFile = new File(Util.createFolder(buildDir, "version_data"),
+                "manifest.json");
         JsonObject json =
                 HTTPUtils.downloadJson(Constants.MC_VERSION_MANIFEST, manifestFile).getAsJsonObject();
         for (JsonElement data : json.getAsJsonArray("versions")) {
@@ -44,7 +71,8 @@ public final class MojangDownloader {
     }
 
     public static String getProperVersion(File buildDir, String version) throws IOException {
-        File manifestFile = new File(getVersionDataFolder(buildDir), "mc_version_manifest.json");
+        File manifestFile = new File(Util.createFolder(buildDir, "version_data"),
+                "manifest.json");
         JsonObject manifest = HTTPUtils.downloadJson(Constants.MC_VERSION_MANIFEST, manifestFile)
                 .getAsJsonObject();
         String properVersion = version;
@@ -58,12 +86,5 @@ public final class MojangDownloader {
             properVersion = manifest.getAsJsonObject("latest")
                     .get("snapshot").getAsString();
         return properVersion;
-    }
-
-    private static File getVersionDataFolder(File buildDir) {
-        File dir = new File(buildDir, "version_data");
-        if (!dir.exists())
-            dir.mkdirs();
-        return dir;
     }
 }

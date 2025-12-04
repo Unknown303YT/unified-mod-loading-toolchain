@@ -17,10 +17,13 @@ public abstract class UMLTExtension {
         this.patchDir = factory.directoryProperty();
 
         this.getMinecraftVersion().convention("1.20.1");
+        this.useGlobalCache().convention(true);
         this.getPatchDir().convention(factory.directoryProperty().fileValue(new File("patches")));
     }
 
     public abstract Property<String> getMinecraftVersion();
+
+    public abstract Property<Boolean> useGlobalCache();
 
     public MappingsSpec getMappings() {
         return mappings;
