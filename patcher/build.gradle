@@ -1,0 +1,16 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.riverstone.unknown303.umlt'
+version = '1.0.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation gradleApi()
+
+    implementation "io.codechicken:DiffPatch:2.1.0.42"
+}
