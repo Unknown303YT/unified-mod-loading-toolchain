@@ -22,11 +22,6 @@ public final class MappingUtil {
 
     /* MAPPING FORMAT CONVERSIONS */
 
-    public static void officialToTiny(File officialMapping, File outputFile) throws IOException {
-        MappingReader.read(officialMapping.toPath(), MappingFormat.PROGUARD_FILE,
-                MappingWriter.create(outputFile.toPath(), MappingFormat.TINY_2_FILE));
-    }
-
     public static void parchmentJsonToMappingTree(JsonObject json, MappingTree tree) {
         List<String> destinationNamespaces = new ArrayList<>(tree.getDstNamespaces());
         if (!destinationNamespaces.contains("parchment")) {

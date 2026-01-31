@@ -2,6 +2,10 @@ package com.riverstone.unknown303.umlt.tasks.mapping.provider;
 
 import com.riverstone.unknown303.umlt.UMLTTask;
 import com.riverstone.unknown303.umlt.util.MojangDownloader;
+import net.fabricmc.mappingio.MappingWriter;
+import net.fabricmc.mappingio.format.MappingFormat;
+import net.fabricmc.mappingio.format.proguard.ProGuardFileReader;
+import net.fabricmc.mappingio.tree.MemoryMappingTree;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
@@ -9,23 +13,55 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 
 public abstract class DownloadMojMapsTask extends UMLTTask {
+    private File clientMappingFile;
+    private File serverMappingFile;
+
     @Input
     public abstract Property<String> getMinecraftVersion();
 
     @OutputDirectory
     public abstract DirectoryProperty getOutputDir();
 
+    public File getClientMappingFile() {
+        return clientMappingFile;
+    }
+
+    public File getServerMappingFile() {
+        return serverMappingFile;
+    }
+
     @TaskAction
     public void download() throws IOException {
         String version = MojangDownloader.getProperVersion(getCacheDir(), getMinecraftVersion().get());
         File outDir = getOutputDir().getAsFile().get();
 
-        MojangDownloader.downloadClientMappings(getCacheDir(), version,
-                new File(outDir, version + "-client.txt"));
-        MojangDownloader.downloadServerMappings(getCacheDir(), version,
-                new File(outDir, version + "-server.txt"));
+        File clientTxt = new File(outDir, version + "-client.txt");
+        File serverTxt = new File(outDir, version + "-server.txt");
+
+        MojangDownloader.downloadClientMappings(getCacheDir(), version, clientTxt);
+        MojangDownloader.downloadServerMappings(getCacheDir(), version, serverTxt);
+
+        MemoryMappingTree clientMappings = new MemoryMappingTree();
+        MemoryMappingTree serverMappings = new MemoryMappingTree();
+        clientMappings.visitNamespaces("mojmaps", List.of("official"));
+        serverMappings.visitNamespaces("mojmaps", List.of("official"));
+
+        ProGuardFileReader.read(new FileReader(clientTxt),
+                "mojmaps", "official", clientMappings);
+        ProGuardFileReader.read(new FileReader(serverTxt),
+                "mojmaps", "official", serverMappings);
+
+        clientMappings.visitNamespaces("official", List.of("mojmaps"));
+
+        clientMappingFile = new File(outDir, version + "-client.tiny");
+        clientMappings.accept(MappingWriter.create(clientMappingFile.toPath(), MappingFormat.TINY_2_FILE));
+
+        serverMappingFile = new File(outDir, version + "-server.tiny");
+        serverMappings.accept(MappingWriter.create(serverMappingFile.toPath(), MappingFormat.TINY_2_FILE));
     }
 }

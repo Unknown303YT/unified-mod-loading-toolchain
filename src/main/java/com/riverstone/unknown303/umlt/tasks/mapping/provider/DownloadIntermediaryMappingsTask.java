@@ -18,7 +18,7 @@ import java.io.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-public abstract class GenerateTemplateMappingFileTask extends UMLTTask {
+public abstract class DownloadIntermediaryMappingsTask extends UMLTTask {
     @Input
     public abstract Property<String> getMinecraftVersion();
 

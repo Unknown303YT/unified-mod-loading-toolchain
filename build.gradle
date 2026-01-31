@@ -29,6 +29,7 @@ dependencies {
 
     implementation "net.fabricmc:tiny-remapper:${tiny_remapper_version}"
     implementation "net.fabricmc:mapping-io:${mapping_io_version}"
+    implementation "net.fabricmc:mapping-io-extras:${mapping_io_version}"
 
     implementation "com.google.code.gson:gson:${gson_version}"
     implementation "org.vineflower:vineflower:${vineflower_version}"
