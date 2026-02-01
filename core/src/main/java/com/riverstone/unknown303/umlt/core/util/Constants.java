@@ -1,4 +1,4 @@
-package com.riverstone.unknown303.umlt.util;
+package com.riverstone.unknown303.umlt.core.util;
 
 public final class Constants {
     private Constants() {}

@@ -19,6 +19,10 @@ repositories {
         url = "https://maven.fabricmc.net/"
     }
     maven {
+        name = "MinecraftForge"
+        url = "https://maven.minecraftforge.net/"
+    }
+    maven {
         name = "SpongePowered"
         url = "https://repo.spongepowered.org/maven/"
     }
@@ -33,7 +37,9 @@ dependencies {
 
     implementation "com.google.code.gson:gson:${gson_version}"
     implementation "org.vineflower:vineflower:${vineflower_version}"
-    implementation "io.codechicken:DiffPatch:${diffpatch_version}:all"
+    implementation "net.minecraftforge:DiffPatch:${diffpatch_version}"
+
+    implementation project(":core")
 }
 
 gradlePlugin {

@@ -1,4 +1,4 @@
-package com.riverstone.unknown303.umlt.util;
+package com.riverstone.unknown303.umlt.core.util;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

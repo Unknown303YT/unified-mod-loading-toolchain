@@ -3,7 +3,7 @@ package com.riverstone.unknown303.umlt;
 import com.riverstone.unknown303.umlt.tasks.mapping.provider.DownloadMojMapsTask;
 import com.riverstone.unknown303.umlt.tasks.mapping.provider.DownloadIntermediaryMappingsTask;
 import com.riverstone.unknown303.umlt.tasks.download.DownloadMinecraftTask;
-import com.riverstone.unknown303.umlt.util.Util;
+import com.riverstone.unknown303.umlt.core.util.Util;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskProvider;

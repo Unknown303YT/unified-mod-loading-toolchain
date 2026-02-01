@@ -1,7 +1,6 @@
 package com.riverstone.unknown303.umlt.tasks;
 
 import com.riverstone.unknown303.umlt.UMLTTask;
-import com.riverstone.unknown303.umlt.util.JarMerger;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputFile;

@@ -1,16 +1,12 @@
 package com.riverstone.unknown303.umlt.tasks.mapping.provider;
 
 import com.riverstone.unknown303.umlt.UMLTTask;
-import com.riverstone.unknown303.umlt.util.MojangDownloader;
-<<<<<<< HEAD
+import com.riverstone.unknown303.umlt.core.util.MojangDownloader;
 import net.fabricmc.mappingio.MappingWriter;
 import net.fabricmc.mappingio.format.MappingFormat;
 import net.fabricmc.mappingio.format.proguard.ProGuardFileReader;
-=======
 import net.fabricmc.mappingio.MappingReader;
-import net.fabricmc.mappingio.format.MappingFormat;
 import net.fabricmc.mappingio.tree.MappingTree;
->>>>>>> 9e31babfb8b56b77eedc55438878e93c76cf3623
 import net.fabricmc.mappingio.tree.MemoryMappingTree;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.Property;
@@ -45,8 +41,6 @@ public abstract class DownloadMojMapsTask extends UMLTTask {
     public void download() throws IOException {
         String version = MojangDownloader.getProperVersion(getCacheDir(), getMinecraftVersion().get());
         File outDir = getOutputDir().getAsFile().get();
-
-<<<<<<< HEAD
         File clientTxt = new File(outDir, version + "-client.txt");
         File serverTxt = new File(outDir, version + "-server.txt");
 
@@ -70,7 +64,6 @@ public abstract class DownloadMojMapsTask extends UMLTTask {
 
         serverMappingFile = new File(outDir, version + "-server.tiny");
         serverMappings.accept(MappingWriter.create(serverMappingFile.toPath(), MappingFormat.TINY_2_FILE));
-=======
         File clientText = new File(outDir, version + "-client.txt");
         File serverText = new File(outDir, version + "-server.txt");
 
@@ -93,6 +86,5 @@ public abstract class DownloadMojMapsTask extends UMLTTask {
         for (MappingTree.ClassMapping clazz : mappings.getClasses()) {
             properMaps.addClass(clazz);
         }
->>>>>>> 9e31babfb8b56b77eedc55438878e93c76cf3623
     }
 }

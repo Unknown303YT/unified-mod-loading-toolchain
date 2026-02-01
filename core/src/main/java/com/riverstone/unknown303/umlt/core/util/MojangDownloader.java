@@ -1,4 +1,4 @@
-package com.riverstone.unknown303.umlt.util;
+package com.riverstone.unknown303.umlt.core.util;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -29,30 +29,6 @@ public final class MojangDownloader {
         String serverURL = versionData.getAsJsonObject("downloads")
                 .getAsJsonObject("server").getAsJsonPrimitive("url").getAsString();
         HTTPUtils.downloadFile(serverURL, out);
-    }
-
-    public static void downloadClientMappings(File buildDir, String version, File out) throws IOException {
-        String properVersion = getProperVersion(buildDir, version);
-        File versionDataFile = new File(Util.createFolder(buildDir, "version_data"),
-                properVersion + ".json");
-        JsonObject versionData = HTTPUtils.downloadJson(getVersionDataUrl(buildDir, version),
-                versionDataFile).getAsJsonObject();
-        String  clientURL = versionData.getAsJsonObject("downloads")
-                .getAsJsonObject("client_mappings")
-                .getAsJsonPrimitive("url").getAsString();
-        HTTPUtils.downloadFile(clientURL, out);
-    }
-
-    public static void downloadServerMappings(File buildDir, String version, File out) throws IOException {
-        String properVersion = getProperVersion(buildDir, version);
-        File versionDataFile = new File(Util.createFolder(buildDir, "version_data"),
-                properVersion + ".json");
-        JsonObject versionData = HTTPUtils.downloadJson(getVersionDataUrl(buildDir, version),
-                versionDataFile).getAsJsonObject();
-        String  server = versionData.getAsJsonObject("downloads")
-                .getAsJsonObject("server_mappings")
-                .getAsJsonPrimitive("url").getAsString();
-        HTTPUtils.downloadFile(server, out);
     }
 
     public static String getVersionDataUrl(File buildDir, String version) throws IOException {

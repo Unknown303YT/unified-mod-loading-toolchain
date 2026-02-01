@@ -2,15 +2,22 @@ plugins {
     id 'java'
 }
 
-group = 'com.riverstone.unknown303.umlt'
-version = '1.0.0-SNAPSHOT'
+group = 'com.riverstone.unknown303.umlt.patcher'
+version = "${umlt_version}"
 
 repositories {
     mavenCentral()
+    maven {
+        name = "MinecraftForge"
+        url = "https://maven.minecraftforge.net/"
+    }
 }
 
 dependencies {
     implementation gradleApi()
 
-    implementation "io.codechicken:DiffPatch:2.1.0.42"
+    implementation "net.minecraftforge:DiffPatch:${diffpatch_version}"
+    implementation "org.vineflower:vineflower:${vineflower_version}"
+
+    implementation project(":core")
 }

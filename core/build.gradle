@@ -1,0 +1,14 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.riverstone.unknown303.umlt'
+version = "${umlt_version}"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "com.google.code.gson:gson:${gson_version}"
+}

@@ -1,9 +1,9 @@
 package com.riverstone.unknown303.umlt.tasks.mapping.provider;
 
 import com.riverstone.unknown303.umlt.UMLTTask;
-import com.riverstone.unknown303.umlt.util.Constants;
-import com.riverstone.unknown303.umlt.util.HTTPUtils;
-import com.riverstone.unknown303.umlt.util.MojangDownloader;
+import com.riverstone.unknown303.umlt.core.util.Constants;
+import com.riverstone.unknown303.umlt.core.util.HTTPUtils;
+import com.riverstone.unknown303.umlt.core.util.MojangDownloader;
 import net.fabricmc.mappingio.MappingReader;
 import net.fabricmc.mappingio.MappingWriter;
 import net.fabricmc.mappingio.format.MappingFormat;
