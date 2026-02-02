@@ -1,7 +1,7 @@
 package com.riverstone.unknown303.umlt.tasks.download;
 
 import com.riverstone.unknown303.umlt.UMLTTask;
-import com.riverstone.unknown303.umlt.util.MojangDownloader;
+import com.riverstone.unknown303.umlt.core.util.MojangDownloader;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;

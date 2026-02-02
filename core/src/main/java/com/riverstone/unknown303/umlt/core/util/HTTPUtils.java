@@ -37,9 +37,6 @@ public class HTTPUtils {
         URL url = new URL(urlString);
         HttpURLConnection connection = openConnectionWithRedirects(url);
 
-        connection.setRequestProperty("User-Agent", "UMLT-Downloader");
-        connection.connect();
-
         if (connection.getResponseCode() != HttpURLConnection.HTTP_OK)
             throw new IOException("Failed to download " + urlString + ", Code: " + connection.getResponseCode());
 
@@ -69,6 +66,7 @@ public class HTTPUtils {
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setInstanceFollowRedirects(false);
+        connection.setRequestProperty("User-Agent", "UMLT-Downloader");
 
         int status = connection.getResponseCode();
         if (status >= 300 && status <= 399) {
