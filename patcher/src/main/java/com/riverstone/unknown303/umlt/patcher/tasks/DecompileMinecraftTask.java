@@ -82,30 +82,20 @@ public abstract class DecompileMinecraftTask extends PatcherTask {
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         processBuilder.inheritIO();
 
-        Process process = processBuilder.start();
+        Process process = null;
         try {
-            while (true) {
-                try {
-                    int exit = process.exitValue();
-                    if (exit != 0) {
-                        throw new RuntimeException("Runner JAR failed with exit code " + exit);
-                    }
-                    break;
-                } catch (IllegalThreadStateException ignored) {
-                    // Still running
-                }
-
-                // ⭐ Gradle cancellation signal
-                if (Thread.currentThread().isInterrupted()) {
-                    getLogger().warn("Task cancelled — terminating decompiler process...");
-                    killProcessTree(process);
-                    throw new TaskExecutionException(this, new BuildCancelledException("Decompile cancelled"));
-                }
-            }
-        } catch (Exception e) {
-            if (process.isAlive()) {
+            process = processBuilder.start();
+            int exit = process.waitFor();
+            if (exit != 0)
+                throw new RuntimeException("Runner JAR failed with exit code " + exit);
+        } catch (InterruptedException e) {
+            if (process.isAlive())
                 killProcessTree(process);
-            }
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Task cancelled", e);
+        } catch (Exception e) {
+            if (process.isAlive())
+                killProcessTree(process);
             throw new RuntimeException("Failed to run decompiler", e);
         }
 
