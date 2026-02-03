@@ -23,8 +23,8 @@ public abstract class DownloadMinecraftTask extends PatcherTask {
         String version = getMinecraftVersion().get();
         File outDir = getOutputDir().getAsFile().get();
         MojangDownloader.downloadClientJar(getGlobalCacheDir(), version,
-                new File(outDir, version + "-client.jar"));
+                new File(outDir, version + "-client.jar"), getLogger());
         MojangDownloader.downloadServerJar(getGlobalCacheDir(), version,
-                new File(outDir, version + "-server.jar"));
+                new File(outDir, version + "-server.jar"), getLogger());
     }
 }

@@ -1,7 +1,5 @@
 package com.riverstone.unknown303.umlt;
 
-import com.riverstone.unknown303.umlt.tasks.mapping.provider.DownloadMojMapsTask;
-import com.riverstone.unknown303.umlt.tasks.mapping.provider.DownloadIntermediaryMappingsTask;
 import com.riverstone.unknown303.umlt.tasks.download.DownloadMinecraftTask;
 import com.riverstone.unknown303.umlt.core.util.Util;
 import org.gradle.api.Plugin;
@@ -27,20 +25,6 @@ public class ToolchainPlugin implements Plugin<Project> {
                 "downloadMinecraft", DownloadMinecraftTask.class, task -> {
                     task.getMinecraftVersion().set(extension.getMinecraftVersion());
                     task.getOutputDir().set(new File(cacheDir, "vanillaJars"));
-                });
-
-        TaskProvider<DownloadIntermediaryMappingsTask> downloadIntermediaryMappings = project.getTasks().register(
-                "downloadIntermediaryMappings", DownloadIntermediaryMappingsTask.class,
-                task -> {
-                    task.getMinecraftVersion().set(extension.getMinecraftVersion());
-                    task.getOutputDir().set(new File(cacheDir, "mappings/template"));
-                });
-
-        TaskProvider<DownloadMojMapsTask> downloadMojMaps = project.getTasks().register(
-                "downloadMojMaps", DownloadMojMapsTask.class,
-                task -> {
-                    task.getMinecraftVersion().set(extension.getMinecraftVersion());
-                    task.getOutputDir().set(new File(cacheDir, "mappings" + File.separator +  "mojmaps"));
                 });
     }
 

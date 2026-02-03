@@ -23,8 +23,8 @@ public abstract class DownloadMinecraftTask extends UMLTTask {
         String version = getMinecraftVersion().get();
         File outDir = getOutputDir().getAsFile().get();
         MojangDownloader.downloadClientJar(getCacheDir(), version,
-                new File(outDir, version + "-client.jar"));
+                new File(outDir, version + "-client.jar"), getLogger());
         MojangDownloader.downloadServerJar(getCacheDir(), version,
-                new File(outDir, version + "-server.jar"));
+                new File(outDir, version + "-server.jar"), getLogger());
     }
 }

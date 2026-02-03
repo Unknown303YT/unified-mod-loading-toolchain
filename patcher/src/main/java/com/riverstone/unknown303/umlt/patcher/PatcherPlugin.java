@@ -16,7 +16,7 @@ public class PatcherPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         PatcherExtension extension =
-                project.getExtensions().create("patcher", PatcherExtension.class, project);
+                project.getExtensions().create("patcher", PatcherExtension.class, project.getObjects());
 
         globalCacheDir = Util.createFolder(project.getGradle().getGradleUserHomeDir(),
                         "caches" + File.separator + "umlt" + File.separator + "patcher");
@@ -34,10 +34,11 @@ public class PatcherPlugin implements Plugin<Project> {
                 "decompileMinecraft", DecompileMinecraftTask.class,
                 task -> {
                     task.getMinecraftVersion().convention(extension.getMinecraftVersion());
-                    task.getClientJar().convention(getClientJar(extension.getMinecraftVersion().get()));
-                    task.getServerJar().convention(getServerJar(extension.getMinecraftVersion().get()));
+                    task.getClientJar().set(getClientJar(extension.getMinecraftVersion().get()));
+                    task.getServerJar().set(getServerJar(extension.getMinecraftVersion().get()));
                     task.getClientOutputDir().set(new File(new File(localCacheDir, "decompiled-vanilla"), extension.getMinecraftVersion().get() + "-client"));
                     task.getServerOutputDir().set(new File(new File(localCacheDir, "decompiled-vanilla"), extension.getMinecraftVersion().get() + "-server"));
+                    task.getMemoryAllocated().convention(4096);
                 });
     }
 
