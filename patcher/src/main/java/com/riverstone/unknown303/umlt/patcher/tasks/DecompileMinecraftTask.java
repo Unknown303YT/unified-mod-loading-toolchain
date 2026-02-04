@@ -140,6 +140,7 @@ public abstract class DecompileMinecraftTask extends PatcherTask {
                 throw new RuntimeException("Error reading line", e);
             }
         });
+        outputThread.setDaemon(true);
         outputThread.start();
         return outputThread;
     }
