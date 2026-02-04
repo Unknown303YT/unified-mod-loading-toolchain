@@ -10,6 +10,7 @@ import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.Matcher;
 
 public abstract class DownloadMinecraftTask extends PatcherTask {
     @Input
@@ -23,8 +24,8 @@ public abstract class DownloadMinecraftTask extends PatcherTask {
         String version = getMinecraftVersion().get();
         File outDir = getOutputDir().getAsFile().get();
         MojangDownloader.downloadClientJar(getGlobalCacheDir(), version,
-                new File(outDir, version + "-client.jar"), getLogger());
+                new File(new File(outDir, version), "client-" + version.replace('.', '_') + ".jar"), getLogger());
         MojangDownloader.downloadServerJar(getGlobalCacheDir(), version,
-                new File(outDir, version + "-server.jar"), getLogger());
+                new File(new File(outDir, version), "server-" + version.replace('.', '_') + ".jar"), getLogger());
     }
 }

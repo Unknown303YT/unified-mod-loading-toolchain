@@ -4,8 +4,8 @@ import java.io.File;
 import java.util.function.Function;
 
 public enum Tool {
-    MC_DOWNLOADER(Constants.MC_DECOMPILER_LOCATION, "MinecraftDecompiler",
-            file -> new File(file, "mcDownloader"));
+    VINEFLOWER(Constants.VINEFLOWER_LOCATION, "vineflower",
+            file -> new File(file, "vineflower"));
     private final String mavenUrl;
     private final String jarFileStart;
     private final Function<File, File> cacheDir;

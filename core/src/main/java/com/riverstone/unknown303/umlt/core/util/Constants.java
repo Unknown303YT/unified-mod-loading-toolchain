@@ -3,6 +3,7 @@ package com.riverstone.unknown303.umlt.core.util;
 public final class Constants {
     private Constants() {}
 
+    public static final String MAVEN_CENTRAL = "https://repo1.maven.org/maven2/";
     public static final String FABRIC_MAVEN = "https://maven.fabricmc.net/";
     public static final String UNKNOWNS_MODMAVEN = "https://unknown303yt.github.io/modmaven/";
 
@@ -12,5 +13,5 @@ public final class Constants {
     public static final String INTERMEDIARY_LOCATION = FABRIC_MAVEN + "net/fabricmc/intermediary/";
     public static final String YARN_LOCATION = FABRIC_MAVEN + "net/fabricmc/yarn/";
 
-    public static final String MC_DECOMPILER_LOCATION = UNKNOWNS_MODMAVEN + "com/riverstone/unknown303/MinecraftDecompiler/";
+    public static final String VINEFLOWER_LOCATION = MAVEN_CENTRAL + "org/vineflower/vineflower/";
 }

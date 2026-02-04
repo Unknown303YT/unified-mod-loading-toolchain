@@ -19,13 +19,14 @@ public class PatcherPlugin implements Plugin<Project> {
                 project.getExtensions().create("patcher", PatcherExtension.class, project.getObjects());
 
         globalCacheDir = Util.createFolder(project.getGradle().getGradleUserHomeDir(),
-                        "caches" + File.separator + "umlt" + File.separator + "patcher");
+                "caches" + File.separator + "umlt" + File.separator + "patcher");
         localCacheDir = Util.createFolder(project.getLayout().getBuildDirectory().getAsFile().get(),
                 "umlt" + File.separator + "patcher");
 
         TaskProvider<DownloadMinecraftTask> downloadMC = project.getTasks().register(
                 "downloadMinecraft", DownloadMinecraftTask.class,
                 task -> {
+                    task.setGroup("patcher");
                     task.getMinecraftVersion().convention(extension.getMinecraftVersion());
                     task.getOutputDir().set(new File(globalCacheDir, "mcJars"));
                 });
@@ -33,6 +34,7 @@ public class PatcherPlugin implements Plugin<Project> {
         TaskProvider<DecompileMinecraftTask> decompileMC = project.getTasks().register(
                 "decompileMinecraft", DecompileMinecraftTask.class,
                 task -> {
+                    task.setGroup("patcher");
                     task.getMinecraftVersion().convention(extension.getMinecraftVersion());
                     task.getClientJar().set(getClientJar(extension.getMinecraftVersion().get()));
                     task.getServerJar().set(getServerJar(extension.getMinecraftVersion().get()));
@@ -55,10 +57,10 @@ public class PatcherPlugin implements Plugin<Project> {
     }
 
     private File getClientJar(String version) {
-        return new File(new File(globalCacheDir, "mcJars"), version + "-client.jar");
+        return new File(new File(globalCacheDir, "mcJars/" + version), "client-" + version.replace('.', '_') + ".jar");
     }
 
     private File getServerJar(String version) {
-        return new File(new File(globalCacheDir, "mcJars"), version + "-server.jar");
+        return new File(new File(globalCacheDir, "mcJars/" + version), "server-" + version.replace('.', '_') + ".jar");
     }
 }

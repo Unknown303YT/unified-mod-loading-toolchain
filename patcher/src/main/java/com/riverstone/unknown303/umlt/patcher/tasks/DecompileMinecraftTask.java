@@ -2,20 +2,16 @@ package com.riverstone.unknown303.umlt.patcher.tasks;
 
 import com.riverstone.unknown303.umlt.core.util.MavenDownloader;
 import com.riverstone.unknown303.umlt.core.util.Tool;
-import org.gradle.api.BuildCancelledException;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.api.tasks.TaskExecutionException;
+import org.jetbrains.annotations.NotNull;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -49,8 +45,11 @@ public abstract class DecompileMinecraftTask extends PatcherTask {
         File clientOutput = getClientOutputDir().getAsFile().get();
         File serverOutput = getServerOutputDir().getAsFile().get();
 
-        File mcDecompiler = MavenDownloader.getOrDownloadLatestVersion(getGlobalCacheDir(),
-                Tool.MC_DOWNLOADER, getLogger(), true, true);
+        clientOutput.delete();
+        serverOutput.delete();
+
+        File vineflowerCLI = MavenDownloader.getOrDownloadLatestVersion(getGlobalCacheDir(),
+                Tool.VINEFLOWER, getLogger(), true, false);
 
         File realServerJar = serverJar;
         if (isBundlerJar(serverJar)) {
@@ -62,44 +61,87 @@ public abstract class DecompileMinecraftTask extends PatcherTask {
         }
 
         getLogger().lifecycle("Decompiling client jar...");
-        runDecompiler(clientJar, clientOutput, mcDecompiler);
+        runDecompiler(clientJar, clientOutput, vineflowerCLI);
         getLogger().lifecycle("Decompiling server jar...");
-        runDecompiler(realServerJar, serverOutput, mcDecompiler);
+        runDecompiler(realServerJar, serverOutput, vineflowerCLI);
     }
 
     private void runDecompiler(File inputJar, File outputDir, File decompiler) throws IOException {
         getLogger().lifecycle("Decompiling file " + inputJar.getAbsolutePath() + " to folder " + outputDir.getAbsolutePath() + " with " + decompiler.getAbsolutePath());
+
+        String javaExec = new File(
+                System.getProperty("java.home"),
+                "bin" + File.separator + "java"
+        ).getAbsolutePath();
+
         List<String> command = new ArrayList<>();
-        command.add("%s%sbin%sjava".formatted(System.getProperty("java.home"),
-                File.separator, File.separator));
+        command.add(javaExec);
         command.add("-Xmx" + getMemoryAllocated().get() + "m");
         command.add("-jar");
         command.add(decompiler.getAbsolutePath());
 
+        // CLI Options
+        command.add("--ind=4");
+        command.add("--lvt=1");
+        command.add("--fdi=1");
+        command.add("--threads=1");
+        command.add("--optimize=0");
+        command.add("--decompile-generics=1");
+        command.add("--decompile-lambdas=1");
+        command.add("--decompile-inner=1");
+        command.add("--rename=1");
+        command.add("--remove-bridge=0");
+        command.add("--remove-synthetic=0");
+        command.add("--outputdir=1");
+
+        // Inputs and Outputs
         command.add(inputJar.getAbsolutePath());
         command.add(outputDir.getAbsolutePath());
 
+        getLogger().lifecycle("COMMAND: " + String.join(" ", command));
+
         ProcessBuilder processBuilder = new ProcessBuilder(command);
-        processBuilder.inheritIO();
+        processBuilder.redirectErrorStream(true);
 
         Process process = null;
+
         try {
             process = processBuilder.start();
+
+            Thread outputThread = outputThread(process);
+
             int exit = process.waitFor();
+
             if (exit != 0)
-                throw new RuntimeException("Runner JAR failed with exit code " + exit);
+                throw new RuntimeException("Vineflower CLI failed with exit code " + exit);
         } catch (InterruptedException e) {
+            // Task cancelled
             if (process.isAlive())
                 killProcessTree(process);
             Thread.currentThread().interrupt();
-            throw new RuntimeException("Task cancelled", e);
+            throw new RuntimeException("Decompile cancelled", e);
         } catch (Exception e) {
-            if (process.isAlive())
+            if (process != null && process.isAlive())
                 killProcessTree(process);
-            throw new RuntimeException("Failed to run decompiler", e);
+            throw new RuntimeException("Failed to run Vineflower CLI", e);
         }
 
         getLogger().lifecycle("File decompiled!");
+    }
+
+    private @NotNull Thread outputThread(Process process) {
+        Thread outputThread = new Thread(() -> {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    getLogger().info("[Vineflower] " + line);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Error reading line", e);
+            }
+        });
+        outputThread.start();
+        return outputThread;
     }
 
     private boolean isBundlerJar(File jar) {
@@ -111,7 +153,7 @@ public abstract class DecompileMinecraftTask extends PatcherTask {
     }
 
     private File extractRealServerJar(File bundlerJar, File cacheDir, String mcVersion) {
-        File extracted = new File(cacheDir, mcVersion + "-server-real.jar");
+        File extracted = new File(cacheDir + File.separator + mcVersion, "server-real-" + mcVersion.replace('.', '_') + ".jar");
 
         if (extracted.exists()) {
             return extracted;
@@ -147,10 +189,11 @@ public abstract class DecompileMinecraftTask extends PatcherTask {
     private void killProcessTree(Process process) {
         try {
             process.descendants().forEach(ph -> {
-                try { ph.destroyForcibly(); } catch (Exception ignored) {}
+                try {
+                    ph.destroyForcibly();
+                } catch (Exception ignored) {}
             });
             process.destroyForcibly();
         } catch (Exception ignored) {}
     }
-
 }
