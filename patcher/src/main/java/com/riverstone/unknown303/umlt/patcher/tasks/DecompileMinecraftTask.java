@@ -98,7 +98,7 @@ public abstract class DecompileMinecraftTask extends PatcherTask {
         command.add(inputJar.getAbsolutePath());
         command.add(outputDir.getAbsolutePath());
 
-        getLogger().lifecycle("COMMAND: " + String.join(" ", command));
+        getLogger().debug("COMMAND: " + String.join(" ", command));
 
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         processBuilder.redirectErrorStream(true);
