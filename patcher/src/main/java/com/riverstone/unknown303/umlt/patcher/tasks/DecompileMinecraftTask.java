@@ -45,8 +45,8 @@ public abstract class DecompileMinecraftTask extends PatcherTask {
         File clientOutput = getClientOutputDir().getAsFile().get();
         File serverOutput = getServerOutputDir().getAsFile().get();
 
-        clientOutput.delete();
-        serverOutput.delete();
+        deleteFolder(clientOutput);
+        deleteFolder(serverOutput);
 
         File vineflowerCLI = MavenDownloader.getOrDownloadLatestVersion(getGlobalCacheDir(),
                 Tool.VINEFLOWER, getLogger(), true, false);
@@ -98,51 +98,43 @@ public abstract class DecompileMinecraftTask extends PatcherTask {
         command.add(inputJar.getAbsolutePath());
         command.add(outputDir.getAbsolutePath());
 
-        getLogger().debug("COMMAND: " + String.join(" ", command));
+        getLogger().debug("COMMAND: {}", String.join(" ", command));
 
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         processBuilder.redirectErrorStream(true);
+        processBuilder.redirectOutput(ProcessBuilder.Redirect.PIPE);
 
-        Process process = null;
+        Process process = processBuilder.start();
+
+        try (InputStream inputStream = process.getInputStream()) {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            int b;
+
+            while ((b = inputStream.read()) != -1) {
+                if (b == '\n') {
+                    String line = buffer.toString();
+                    buffer.reset();
+                    getLogger().info("[Vineflower] {}", line);
+                } else
+                    buffer.write(b);
+            }
+
+            if (buffer.size() > 0)
+                getLogger().info("[Vineflower] {}", buffer);
+        }
 
         try {
-            process = processBuilder.start();
-
-            Thread outputThread = outputThread(process);
-
             int exit = process.waitFor();
-
-            if (exit != 0)
+            if (exit != 0) {
                 throw new RuntimeException("Vineflower CLI failed with exit code " + exit);
+            }
         } catch (InterruptedException e) {
-            // Task cancelled
-            if (process.isAlive())
-                killProcessTree(process);
+            process.destroyForcibly();
             Thread.currentThread().interrupt();
             throw new RuntimeException("Decompile cancelled", e);
-        } catch (Exception e) {
-            if (process != null && process.isAlive())
-                killProcessTree(process);
-            throw new RuntimeException("Failed to run Vineflower CLI", e);
         }
 
         getLogger().lifecycle("File decompiled!");
-    }
-
-    private @NotNull Thread outputThread(Process process) {
-        Thread outputThread = new Thread(() -> {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    getLogger().info("[Vineflower] " + line);
-                }
-            } catch (IOException e) {
-                throw new RuntimeException("Error reading line", e);
-            }
-        });
-        outputThread.setDaemon(true);
-        outputThread.start();
-        return outputThread;
     }
 
     private boolean isBundlerJar(File jar) {
@@ -187,14 +179,20 @@ public abstract class DecompileMinecraftTask extends PatcherTask {
         }
     }
 
-    private void killProcessTree(Process process) {
-        try {
-            process.descendants().forEach(ph -> {
-                try {
-                    ph.destroyForcibly();
-                } catch (Exception ignored) {}
-            });
-            process.destroyForcibly();
-        } catch (Exception ignored) {}
+    private void deleteFolder(File folder) throws IOException {
+        if (!folder.exists())
+            return;
+
+        if (folder.isDirectory()) {
+            File[] files = folder.listFiles();
+            if (files != null)
+                for (File file : files)
+                    deleteFolder(file);
+        }
+
+        if (folder.delete())
+            getLogger().info("Deleted file {}", folder.getAbsolutePath());
+        else
+            throw new IOException("Failed to delete " + folder.getAbsolutePath());
     }
 }
